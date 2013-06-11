@@ -1,5 +1,5 @@
 /* =============================================================
- * bootstrap-typeahead.js v2.3.2
+ * bootstrap-typeahead.js v2.2.1
  * http://twitter.github.com/bootstrap/javascript.html#typeahead
  * =============================================================
  * Copyright 2012 Twitter, Inc.
@@ -33,8 +33,8 @@
     this.sorter = this.options.sorter || this.sorter
     this.highlighter = this.options.highlighter || this.highlighter
     this.updater = this.options.updater || this.updater
+    this.$menu = $(this.options.menu).appendTo('body')
     this.source = this.options.source
-    this.$menu = $(this.options.menu)
     this.shown = false
     this.listen()
   }
@@ -56,18 +56,16 @@
     }
 
   , show: function () {
-      var pos = $.extend({}, this.$element.position(), {
+      var pos = $.extend({}, this.$element.offset(), {
         height: this.$element[0].offsetHeight
       })
 
-      this.$menu
-        .insertAfter(this.$element)
-        .css({
-          top: pos.top + pos.height
-        , left: pos.left
-        })
-        .show()
+      this.$menu.css({
+        top: pos.top + pos.height
+      , left: pos.left
+      })
 
+      this.$menu.show()
       this.shown = true
       return this
     }
@@ -172,7 +170,6 @@
 
   , listen: function () {
       this.$element
-        .on('focus',    $.proxy(this.focus, this))
         .on('blur',     $.proxy(this.blur, this))
         .on('keypress', $.proxy(this.keypress, this))
         .on('keyup',    $.proxy(this.keyup, this))
@@ -184,7 +181,6 @@
       this.$menu
         .on('click', $.proxy(this.click, this))
         .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
-        .on('mouseleave', 'li', $.proxy(this.mouseleave, this))
     }
 
   , eventSupported: function(eventName) {
@@ -221,7 +217,7 @@
     }
 
   , keydown: function (e) {
-      this.suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40,38,9,13,27])
+      this.suppressKeyPressRepeat = !~$.inArray(e.keyCode, [40,38,9,13,27])
       this.move(e)
     }
 
@@ -258,31 +254,20 @@
       e.preventDefault()
   }
 
-  , focus: function (e) {
-      this.focused = true
-    }
-
   , blur: function (e) {
-      this.focused = false
-      if (!this.mousedover && this.shown) this.hide()
+      var that = this
+      setTimeout(function () { that.hide() }, 150)
     }
 
   , click: function (e) {
       e.stopPropagation()
       e.preventDefault()
       this.select()
-      this.$element.focus()
     }
 
   , mouseenter: function (e) {
-      this.mousedover = true
       this.$menu.find('.active').removeClass('active')
       $(e.currentTarget).addClass('active')
-    }
-
-  , mouseleave: function (e) {
-      this.mousedover = false
-      if (!this.focused && this.shown) this.hide()
     }
 
   }
@@ -290,8 +275,6 @@
 
   /* TYPEAHEAD PLUGIN DEFINITION
    * =========================== */
-
-  var old = $.fn.typeahead
 
   $.fn.typeahead = function (option) {
     return this.each(function () {
@@ -314,21 +297,13 @@
   $.fn.typeahead.Constructor = Typeahead
 
 
- /* TYPEAHEAD NO CONFLICT
-  * =================== */
-
-  $.fn.typeahead.noConflict = function () {
-    $.fn.typeahead = old
-    return this
-  }
-
-
- /* TYPEAHEAD DATA-API
+ /*   TYPEAHEAD DATA-API
   * ================== */
 
   $(document).on('focus.typeahead.data-api', '[data-provide="typeahead"]', function (e) {
     var $this = $(this)
     if ($this.data('typeahead')) return
+    e.preventDefault()
     $this.typeahead($this.data())
   })
 

@@ -1,5 +1,5 @@
 /* =============================================================
- * bootstrap-collapse.js v2.3.2
+ * bootstrap-collapse.js v2.2.1
  * http://twitter.github.com/bootstrap/javascript.html#collapse
  * =============================================================
  * Copyright 2012 Twitter, Inc.
@@ -52,7 +52,7 @@
         , actives
         , hasData
 
-      if (this.transitioning || this.$element.hasClass('in')) return
+      if (this.transitioning) return
 
       dimension = this.dimension()
       scroll = $.camelCase(['scroll', dimension].join('-'))
@@ -72,7 +72,7 @@
 
   , hide: function () {
       var dimension
-      if (this.transitioning || !this.$element.hasClass('in')) return
+      if (this.transitioning) return
       dimension = this.dimension()
       this.reset(this.$element[dimension]())
       this.transition('removeClass', $.Event('hide'), 'hidden')
@@ -120,16 +120,14 @@
   }
 
 
- /* COLLAPSE PLUGIN DEFINITION
-  * ========================== */
-
-  var old = $.fn.collapse
+ /* COLLAPSIBLE PLUGIN DEFINITION
+  * ============================== */
 
   $.fn.collapse = function (option) {
     return this.each(function () {
       var $this = $(this)
         , data = $this.data('collapse')
-        , options = $.extend({}, $.fn.collapse.defaults, $this.data(), typeof option == 'object' && option)
+        , options = typeof option == 'object' && option
       if (!data) $this.data('collapse', (data = new Collapse(this, options)))
       if (typeof option == 'string') data[option]()
     })
@@ -142,17 +140,8 @@
   $.fn.collapse.Constructor = Collapse
 
 
- /* COLLAPSE NO CONFLICT
+ /* COLLAPSIBLE DATA-API
   * ==================== */
-
-  $.fn.collapse.noConflict = function () {
-    $.fn.collapse = old
-    return this
-  }
-
-
- /* COLLAPSE DATA-API
-  * ================= */
 
   $(document).on('click.collapse.data-api', '[data-toggle=collapse]', function (e) {
     var $this = $(this), href
